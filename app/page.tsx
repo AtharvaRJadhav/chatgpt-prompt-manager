@@ -1,4 +1,4 @@
-import React from "react";
+import Link from 'next/link'
 
 export default function Home() {
   return (
@@ -11,14 +11,22 @@ export default function Home() {
           <p className="text-xl text-gray-600 mb-8">
             Save, organize, and reuse your favorite ChatGPT prompts
           </p>
+          
           <div className="bg-white rounded-lg shadow-md p-6 max-w-md mx-auto">
-            <h2 className="text-2xl font-semibold mb-4">Coming Soon</h2>
-            <p className="text-gray-600">
-              We're building an amazing tool to help you manage your ChatGPT prompts!
+            <h2 className="text-2xl font-semibold mb-4">Get Started</h2>
+            <p className="text-gray-600 mb-6">
+              Start building your prompt library today!
             </p>
+            
+            <Link 
+              href="/add-prompt"
+              className="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors"
+            >
+              Add Your First Prompt
+            </Link>
           </div>
         </div>
       </div>
     </div>
-  );
+  )
 }
