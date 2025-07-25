@@ -18,12 +18,21 @@ export default function Home() {
               Start building your prompt library today!
             </p>
             
-            <Link 
-              href="/add-prompt"
-              className="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors"
-            >
-              Add Your First Prompt
-            </Link>
+            <div className="space-y-3">
+              <Link 
+                href="/prompts"
+                className="block w-full bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors"
+              >
+                View My Prompts
+              </Link>
+              
+              <Link 
+                href="/add-prompt"
+                className="block w-full bg-green-600 text-white py-2 px-6 rounded-md hover:bg-green-700 transition-colors"
+              >
+                Add New Prompt
+              </Link>
+            </div>
           </div>
         </div>
       </div>

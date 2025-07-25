@@ -1,33 +1,48 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { addPrompt } from '@/lib/localStorage'
+import { useParams } from 'next/navigation'
+import { getPromptById, updatePrompt } from '@/lib/localStorage'
 
-export default function AddPrompt() {
+export default function EditPrompt() {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [tags, setTags] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
   const [message, setMessage] = useState('')
   const router = useRouter()
+  const params = useParams()
+  const promptId = parseInt(params.id as string)
+
+  // Load the prompt data when component loads
+  useEffect(() => {
+    if (promptId) {
+      const prompt = getPromptById(promptId)
+      if (prompt) {
+        setTitle(prompt.title)
+        setContent(prompt.content)
+        setTags(prompt.tags ? prompt.tags.join(', ') : '')
+      } else {
+        setMessage('Prompt not found.')
+      }
+      setIsLoading(false)
+    }
+  }, [promptId])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
+    setIsSaving(true)
     setMessage('')
 
     try {
       // Convert tags string to array
       const tagsArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag)
 
-      // Add prompt using our local storage helper
-      addPrompt(title, content, tagsArray)
+      updatePrompt(promptId, title, content, tagsArray)
 
-      setMessage('Prompt saved successfully!')
-      setTitle('')
-      setContent('')
-      setTags('')
+      setMessage('Prompt updated successfully!')
       
       // Redirect to prompts page after 2 seconds
       setTimeout(() => {
@@ -35,11 +50,19 @@ export default function AddPrompt() {
       }, 2000)
 
     } catch (error) {
-      console.error('Error saving prompt:', error)
-      setMessage('Error saving prompt. Please try again.')
+      console.error('Error updating prompt:', error)
+      setMessage('Error updating prompt. Please try again.')
     } finally {
-      setIsLoading(false)
+      setIsSaving(false)
     }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-xl text-gray-600">Loading prompt...</div>
+      </div>
+    )
   }
 
   return (
@@ -48,10 +71,17 @@ export default function AddPrompt() {
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-6">
             <strong>Note:</strong> Currently using local storage while we fix the database connection.
-            Your prompts will be saved in your browser.
           </div>
           
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">Add New Prompt</h1>
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-3xl font-bold text-gray-900">Edit Prompt</h1>
+            <button
+              onClick={() => router.push('/prompts')}
+              className="text-gray-600 hover:text-gray-800"
+            >
+              ← Back to Prompts
+            </button>
+          </div>
           
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
@@ -98,13 +128,23 @@ export default function AddPrompt() {
               />
             </div>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? 'Saving...' : 'Save Prompt'}
-            </button>
+            <div className="flex space-x-4">
+              <button
+                type="submit"
+                disabled={isSaving}
+                className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSaving ? 'Updating...' : 'Update Prompt'}
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => router.push('/prompts')}
+                className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+            </div>
 
             {message && (
               <div className={`p-3 rounded-md ${message.includes('Error') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
